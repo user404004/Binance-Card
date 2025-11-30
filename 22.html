@@ -1,0 +1,554 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>إتمام عملية الشراء</title>
+    <style>
+        :root {
+            --primary-color: #4a6fa5;
+            --secondary-color: #166088;
+            --error-color: #e74c3c;
+            --success-color: #2ecc71;
+            --light-color: #f8f9fa;
+            --dark-color: #343a40;
+        }
+        
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background-color: #f5f5f5;
+            color: var(--dark-color);
+            line-height: 1.6;
+        }
+        
+        .container {
+            max-width: 600px;
+            margin: 30px auto;
+            padding: 20px;
+        }
+        
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        
+        .header h1 {
+            color: var(--primary-color);
+            margin-bottom: 10px;
+        }
+        
+        .card {
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            padding: 25px;
+            margin-bottom: 20px;
+            transition: all 0.3s ease;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+        }
+        
+        input {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 16px;
+            transition: border-color 0.3s;
+        }
+        
+        input:focus {
+            border-color: var(--primary-color);
+            outline: none;
+        }
+        
+        .row {
+            display: flex;
+            gap: 15px;
+        }
+        
+        .row .form-group {
+            flex: 1;
+        }
+        
+        .btn {
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 14px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 600;
+            width: 100%;
+            transition: background-color 0.3s;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .btn:hover {
+            background-color: var(--secondary-color);
+        }
+        
+        .btn:disabled {
+            background-color: #cccccc;
+            cursor: not-allowed;
+        }
+        
+        .btn-loading .btn-text {
+            visibility: hidden;
+            opacity: 0;
+        }
+        
+        .btn-loading::after {
+            content: "";
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            margin: auto;
+            border: 3px solid transparent;
+            border-top-color: #ffffff;
+            border-radius: 50%;
+            animation: button-loading-spinner 1s ease infinite;
+        }
+        
+        @keyframes button-loading-spinner {
+            from {
+                transform: rotate(0turn);
+            }
+            to {
+                transform: rotate(1turn);
+            }
+        }
+        
+        .message {
+            padding: 15px;
+            border-radius: 4px;
+            margin-bottom: 20px;
+            text-align: center;
+            display: none;
+            animation: fadeIn 0.5s;
+        }
+        
+        .error {
+            background-color: #ffeaea;
+            color: var(--error-color);
+            border: 1px solid #ffcccc;
+        }
+        
+        .success {
+            background-color: #eaffea;
+            color: var(--success-color);
+            border: 1px solid #ccffcc;
+        }
+        
+        .info {
+            background-color: #e8f4fd;
+            color: var(--primary-color);
+            border: 1px solid #b8daff;
+        }
+        
+        .info-box {
+            background-color: #e8f4fd;
+            border: 1px solid #b8daff;
+            border-radius: 4px;
+            padding: 15px;
+            margin-bottom: 20px;
+        }
+        
+        .info-box p {
+            margin-bottom: 10px;
+        }
+        
+        .info-box ul {
+            padding-right: 20px;
+        }
+        
+        .info-box li {
+            margin-bottom: 5px;
+        }
+        
+        .footer {
+            text-align: center;
+            margin-top: 20px;
+            color: #666;
+            font-size: 14px;
+        }
+        
+        .loading-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(255, 255, 255, 0.8);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+            display: none;
+        }
+        
+        .spinner {
+            width: 50px;
+            height: 50px;
+            border: 5px solid #f3f3f3;
+            border-top: 5px solid var(--primary-color);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-bottom: 20px;
+        }
+        
+        .loading-text {
+            font-size: 18px;
+            color: var(--primary-color);
+            font-weight: 600;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 10000;
+            justify-content: center;
+            align-items: center;
+            animation: fadeIn 0.3s;
+        }
+        
+        .modal-content {
+            background-color: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+            max-width: 500px;
+            width: 90%;
+            text-align: center;
+            animation: scaleIn 0.3s;
+        }
+        
+        @keyframes scaleIn {
+            from { transform: scale(0.9); opacity: 0; }
+            to { transform: scale(1); opacity: 1; }
+        }
+        
+        .modal-icon {
+            font-size: 60px;
+            color: var(--success-color);
+            margin-bottom: 20px;
+        }
+        
+        .modal h2 {
+            color: var(--primary-color);
+            margin-bottom: 15px;
+        }
+        
+        .modal p {
+            margin-bottom: 20px;
+            font-size: 16px;
+        }
+        
+        .modal-btn {
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 600;
+            transition: background-color 0.3s;
+        }
+        
+        .modal-btn:hover {
+            background-color: var(--secondary-color);
+        }
+        
+        .checkmark {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            display: block;
+            stroke-width: 2;
+            stroke: #4bb71b;
+            stroke-miterlimit: 10;
+            margin: 20px auto;
+            box-shadow: inset 0px 0px 0px var(--success-color);
+            animation: fill .4s ease-in-out .4s forwards, scale .3s ease-in-out .9s both;
+        }
+        
+        .checkmark__circle {
+            stroke-dasharray: 166;
+            stroke-dashoffset: 166;
+            stroke-width: 2;
+            stroke-miterlimit: 10;
+            stroke: var(--success-color);
+            fill: none;
+            animation: stroke 0.6s cubic-bezier(0.65, 0, 0.45, 1) forwards;
+        }
+        
+        .checkmark__check {
+            transform-origin: 50% 50%;
+            stroke-dasharray: 48;
+            stroke-dashoffset: 48;
+            animation: stroke 0.3s cubic-bezier(0.65, 0, 0.45, 1) 0.8s forwards;
+        }
+        
+        @keyframes stroke {
+            100% {
+                stroke-dashoffset: 0;
+            }
+        }
+        
+        @keyframes scale {
+            0%, 100% {
+                transform: none;
+            }
+            50% {
+                transform: scale3d(1.1, 1.1, 1);
+            }
+        }
+        
+        @keyframes fill {
+            100% {
+                box-shadow: inset 0px 0px 0px 30px var(--success-color);
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>إتمام عملية الشراء</h1>
+            <p>يرجى إدخال بياناتك لإتمام عملية الدفع</p>
+        </div>
+        
+        <div class="info-box">
+            <p><strong>ملاحظة هامة:</strong> هذه صفحة محاكاة ولا يتم حفظ أو إرسال أي بيانات حقيقية</p>
+            <p>لاختبار عملية الدفع، استخدم بيانات الفيزا التالية:</p>
+            <ul>
+                <li>رقم البطاقة: 5399352447472765</li>
+                <li>تاريخ الانتهاء: 01/29</li>
+                <li>رمز الأمان: 225</li>
+                <li>اسم حامل البطاقة: Mohamed Fatahi Mohamed</li>
+            </ul>
+        </div>
+        
+        <div class="card">
+            <form id="payment-form">
+                <div class="form-group">
+                    <label for="email">البريد الإلكتروني</label>
+                    <input type="email" id="email" name="email" required placeholder="أدخل بريدك الإلكتروني">
+                </div>
+                
+                <div class="form-group">
+                    <label for="card-number">رقم البطاقة</label>
+                    <input type="text" id="card-number" name="card-number" required placeholder="أدخل رقم البطاقة">
+                </div>
+                
+                <div class="row">
+                    <div class="form-group">
+                        <label for="expiry-date">تاريخ الانتهاء</label>
+                        <input type="text" id="expiry-date" name="expiry-date" required placeholder="MM/YY">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="cvv">رمز الأمان (CVV)</label>
+                        <input type="text" id="cvv" name="cvv" required placeholder="XXX">
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="card-name">اسم حامل البطاقة</label>
+                    <input type="text" id="card-name" name="card-name" required placeholder="أدخل الاسم كما هو مدون على البطاقة">
+                </div>
+                
+                <button type="submit" class="btn" id="submit-btn">
+                    <span class="btn-text">إتمام عملية الدفع</span>
+                </button>
+            </form>
+        </div>
+        
+        <div id="message" class="message"></div>
+        
+        <div class="footer">
+            <p>جميع الحقوق محفوظة &copy; 2023</p>
+        </div>
+    </div>
+
+    <!-- شاشة التحميل -->
+    <div class="loading-overlay" id="loading-overlay">
+        <div class="spinner"></div>
+        <div class="loading-text" id="loading-text">جاري التحقق من طريقة الدفع...</div>
+    </div>
+
+    <!-- النافذة المنبثقة للدفع الناجح -->
+    <div class="modal" id="success-modal">
+        <div class="modal-content">
+            <svg class="checkmark" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 52 52">
+                <circle class="checkmark__circle" cx="26" cy="26" r="25" fill="none"/>
+                <path class="checkmark__check" fill="none" d="M14.1 27.2l7.1 7.2 16.7-16.8"/>
+            </svg>
+            <h2>تم الدفع بنجاح!</h2>
+            <p id="success-message"></p>
+            <button class="modal-btn" id="modal-close-btn">موافق</button>
+        </div>
+    </div>
+
+    <script>
+        // بيانات الفيزا الصحيحة
+        const validCardData = {
+            number: '5399352447472765',
+            expiry: '01/29',
+            cvv: '225',
+            name: 'Mohamed Fatahi Mohamed'
+        };
+        
+        // عناصر DOM
+        const form = document.getElementById('payment-form');
+        const messageDiv = document.getElementById('message');
+        const submitBtn = document.getElementById('submit-btn');
+        const loadingOverlay = document.getElementById('loading-overlay');
+        const loadingText = document.getElementById('loading-text');
+        const successModal = document.getElementById('success-modal');
+        const successMessage = document.getElementById('success-message');
+        const modalCloseBtn = document.getElementById('modal-close-btn');
+        
+        // التحقق من حالة المستخدم المخزنة
+        let purchaseCompleted = localStorage.getItem('purchaseCompleted') === 'true';
+        
+        // إذا كان المستخدم قد أتم عملية الشراء من قبل
+        if (purchaseCompleted) {
+            document.querySelector('.info-box').innerHTML += `
+                <div class="message info" style="display: block; margin-top: 15px;">
+                    لقد قمت مسبقاً بإتمام عملية شراء. لا يمكنك استخدام نفس البطاقة مرة أخرى.
+                </div>
+            `;
+        }
+        
+        // معالج إرسال النموذج
+        form.addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            // جمع البيانات من النموذج
+            const email = document.getElementById('email').value;
+            const cardNumber = document.getElementById('card-number').value.replace(/\s/g, '');
+            const expiryDate = document.getElementById('expiry-date').value;
+            const cvv = document.getElementById('cvv').value;
+            const cardName = document.getElementById('card-name').value;
+            
+            // التحقق من صحة البريد الإلكتروني
+            if (!isValidEmail(email)) {
+                showMessage('يرجى إدخال بريد إلكتروني صحيح', 'error');
+                return;
+            }
+            
+            // التحقق مما إذا كانت العملية تمت من قبل
+            if (purchaseCompleted) {
+                showMessage('ليس هناك رصيد كافي في البطاقة', 'error');
+                return;
+            }
+            
+            // تعطيل الزر وإظهار حالة التحميل
+            submitBtn.disabled = true;
+            submitBtn.classList.add('btn-loading');
+            
+            // إظهار شاشة التحميل
+            loadingOverlay.style.display = 'flex';
+            loadingText.textContent = 'جاري التحقق من طريقة الدفع...';
+            
+            // محاكاة عملية التحقق (3 ثوانٍ)
+            setTimeout(() => {
+                // إخفاء شاشة التحميل
+                loadingOverlay.style.display = 'none';
+                
+                // إعادة تمكين الزر وإزالة حالة التحميل
+                submitBtn.disabled = false;
+                submitBtn.classList.remove('btn-loading');
+                
+                // التحقق من بيانات البطاقة
+                if (cardNumber !== validCardData.number || 
+                    expiryDate !== validCardData.expiry || 
+                    cvv !== validCardData.cvv || 
+                    cardName !== validCardData.name) {
+                    showMessage('حدث خطأ في بيانات البطاقة', 'error');
+                    return;
+                }
+                
+                // إذا كانت البيانات صحيحة
+                purchaseCompleted = true;
+                localStorage.setItem('purchaseCompleted', 'true');
+                
+                // إظهار النافذة المنبثقة للنجاح
+                successMessage.textContent = `في خلال 24 ساعة سوف يصلك كود البطاقة على هذا البريد الإلكتروني: ${email}`;
+                successModal.style.display = 'flex';
+                
+                // إعادة تعيين النموذج
+                form.reset();
+            }, 3000);
+        });
+        
+        // إغلاق النافذة المنبثقة
+        modalCloseBtn.addEventListener('click', function() {
+            successModal.style.display = 'none';
+        });
+        
+        // إغلاق النافذة المنبثقة عند النقر خارجها
+        window.addEventListener('click', function(e) {
+            if (e.target === successModal) {
+                successModal.style.display = 'none';
+            }
+        });
+        
+        // دالة للتحقق من صحة البريد الإلكتروني
+        function isValidEmail(email) {
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            return emailRegex.test(email);
+        }
+        
+        // دالة لعرض الرسائل
+        function showMessage(text, type) {
+            messageDiv.textContent = text;
+            messageDiv.className = 'message ' + type;
+            messageDiv.style.display = 'block';
+            
+            // إخفاء الرسالة بعد 5 ثوانٍ
+            setTimeout(() => {
+                messageDiv.style.display = 'none';
+            }, 5000);
+        }
+    </script>
+</body>
+</html>

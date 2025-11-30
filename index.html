@@ -1,0 +1,182 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Binance Card — متجر البطاقات</title>
+  <!-- Tailwind CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    /* Small visual tweaks */
+    .card-image { aspect-ratio: 16/10; object-fit: cover; border-top-left-radius: 0.75rem; border-top-right-radius: 0.75rem; }
+    .smooth { transition: all .18s ease; }
+  </style>
+</head>
+<body class="bg-gray-50 text-gray-800 font-sans">
+  <!-- Header -->
+  <header class="bg-white shadow sticky top-0 z-30">
+    <div class="max-w-7xl mx-auto px-4 py-4 flex items-center justify-between gap-4">
+      <a href="#" class="flex items-center gap-3">
+        <div class="bg-yellow-400 rounded-md p-2 shadow-md">
+          <!-- simple logo -->
+          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M12 2l3 6 6 .5-4.5 3 1.3 6L12 15l-5.8 2.5L7.5 11 3 8.5 9 8 12 2z" fill="#111827" />
+          </svg>
+        </div>
+        <div>
+          <h1 class="text-xl font-bold">Binance Card</h1>
+          <p class="text-xs text-gray-500">متجر بطاقات عصري وآمن</p>
+        </div>
+      </a>
+
+      <div class="flex-1 px-6">
+        <label class="relative block">
+          <input type="search" id="search" placeholder="ابحث عن بطاقة، سعر، وصف..." class="w-full rounded-full border border-gray-200 py-2.5 px-4 pl-10 focus:outline-none focus:ring-2 focus:ring-yellow-300 smooth" />
+          <span class="absolute inset-y-0 right-3 flex items-center text-gray-400">🔍</span>
+        </label>
+      </div>
+
+      <nav class="flex items-center gap-4">
+        <a href="#cart" class="text-sm px-3 py-2 rounded-lg hover:bg-gray-100 smooth">عربة التسوق</a>
+        <a href="#login" class="text-sm px-3 py-2 rounded-lg bg-yellow-400 text-black font-semibold smooth">دخول</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="max-w-7xl mx-auto px-4 py-8">
+    <section id="catalog-view">
+      <div class="flex items-center justify-between mb-6">
+        <h2 class="text-2xl font-semibold">البطاقات المتاحة</h2>
+        <div class="text-sm text-gray-500">10 منتجات</div>
+      </div>
+
+      <div id="cards" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6"></div>
+    </section>
+
+    <!-- Product detail (rendered client-side) -->
+    <section id="product-view" class="hidden">
+      <button id="backBtn" class="mb-4 inline-flex items-center gap-2 text-sm text-gray-600 hover:underline">← رجوع</button>
+      <div class="bg-white rounded-2xl shadow p-6 grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div class="md:col-span-1">
+          <img id="productImage" class="w-full rounded-xl card-image" src="" alt="صورة المنتج" />
+        </div>
+        <div class="md:col-span-2">
+          <h3 id="productTitle" class="text-2xl font-bold mb-2"></h3>
+          <div id="productPrice" class="text-xl text-yellow-600 font-semibold mb-4"></div>
+          <p id="productDesc" class="text-gray-700 mb-6"></p>
+          <div class="flex items-center gap-3">
+            <button id="buyBtn" class="px-5 py-3 rounded-full bg-yellow-400 font-semibold smooth">اشتري الآن</button>
+            <button id="addCartBtn" class="px-4 py-2 rounded-lg border border-gray-200 smooth">أضف إلى السلة</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <footer class="bg-white border-t mt-10">
+    <div class="max-w-7xl mx-auto px-4 py-6 text-sm text-gray-500 flex justify-between">
+      <div>© <span id="year"></span> Binance Card</div>
+      <div>صُمم بمساعدة ChatGPT</div>
+    </div>
+  </footer>
+
+  <script>
+    // Sample product data
+    const products = [
+      { id: 1, title: 'Binance Gold Card', price: '199$', short: 'بطاقة ذهبية مميزة قابلة للشحن', img: './src/im.jpg', desc: 'بطاقة هداية بقيمة 199 دولا' },
+      { id: 2, title: 'Binance Gold Card', price: '510$', short: 'بطاقة ذهبية مميزة قابلة للشحن', img: './src/im.jpg', desc: 'بطاقة هداية بقيمة 500 دولا.' },
+      { id: 3, title: 'Binance Gold Card', price: '1020$', short: 'بطاقة ذهبية مميزة قابلة للشحن', img: './src/im.jpg', desc: 'بطاقة فهداية بقيمة 1000 دولار.' },
+      { id: 4, title: 'Binance Gold Card', price: '1530$', short: 'بطاقة ذهبية مميزة قابلة للشحن', img: './src/im.jpg', desc: 'بطاقةهداية بقيمة 1500 دولار.' },
+      { id: 5, title: 'Binance Gold Card', price: '2040$', short: 'بطاقة ذهبية مميزة قابلة للشحن', img: './src/im.jpg', desc: 'بطاقة هداية بقيمة 2000 دولار.' },
+      { id: 6, title: 'Binance Gold Card', price: '2550$', short: 'بطاقة ذهبية مميزة قابلة للشحن', img: './src/im.jpg', desc: 'بطاقة هداية بقيمة 2500 دولار.' },
+      { id: 7, title: 'Binance Gold Card', price: '5080$', short: 'بطاقة ذهبية مميزة قابلة للشحن', img: './src/im.jpg', desc: 'بطاقة فاخرة بقيمة 5000 دواتر' },
+      { id: 8, title: 'Binance Gold Card', price: '7700$', short: 'بطاقة ذهبية مميزة قابلة للشحن', img: './src/im.jpg', desc: 'بطاقة فاخرة بقيمة 7500 دولار.' },
+      { id: 9, title: 'Binance Gold Card', price: '10,200$', short: 'بطاقة ذهبية مميزة قابلة للشحن', img: './src/im.jpg', desc: 'بطاقة فاخرة 10,000 دولار.' },
+   
+    ];
+
+    // Render cards
+    const cardsContainer = document.getElementById('cards');
+    function renderCatalog(list) {
+      cardsContainer.innerHTML = '';
+      list.forEach(p => {
+        const card = document.createElement('article');
+        card.className = 'bg-white rounded-2xl overflow-hidden shadow hover:shadow-lg smooth';
+        card.innerHTML = `
+          <a href="#product-${p.id}" class="block h-full"> 
+            <img src="${p.img}" alt="${p.title}" class="w-full card-image" />
+            <div class="p-4">
+              <h4 class="font-semibold">${p.title}</h4>
+              <p class="text-sm text-gray-500 mt-1">${p.short}</p>
+              <div class="mt-4 flex items-center justify-between">
+                <div class="text-yellow-600 font-bold">${p.price}</div>
+                <div class="text-xs text-gray-400">تفاصيل →</div>
+              </div>
+            </div>
+          </a>
+        `;
+        cardsContainer.appendChild(card);
+      });
+    }
+
+    // Simple router using hash
+    function showCatalog() {
+      document.getElementById('catalog-view').classList.remove('hidden');
+      document.getElementById('product-view').classList.add('hidden');
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function showProduct(id) {
+      const p = products.find(x => x.id === Number(id));
+      if (!p) { showCatalog(); return; }
+      document.getElementById('catalog-view').classList.add('hidden');
+      document.getElementById('product-view').classList.remove('hidden');
+      document.getElementById('productImage').src = p.img;
+      document.getElementById('productTitle').textContent = p.title;
+      document.getElementById('productPrice').textContent = p.price;
+      document.getElementById('productDesc').textContent = p.desc;
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function router() {
+      const hash = location.hash.replace('#', '');
+      if (!hash) { showCatalog(); return; }
+      if (hash.startsWith('product-')) {
+        const id = hash.split('-')[1];
+        showProduct(id);
+      } else {
+        showCatalog();
+      }
+    }
+
+    // Back button
+    document.getElementById('backBtn').addEventListener('click', (e) => {
+      location.hash = '';
+    });
+
+    // Search filter
+    document.getElementById('search').addEventListener('input', (e) => {
+      const q = e.target.value.trim().toLowerCase();
+      if (!q) { renderCatalog(products); return; }
+      const filtered = products.filter(p => (p.title + ' ' + p.short + ' ' + p.desc).toLowerCase().includes(q));
+      renderCatalog(filtered);
+    });
+
+    // Set year
+    document.getElementById('year').textContent = new Date().getFullYear();
+
+    // Initial render + routing
+    renderCatalog(products);
+    window.addEventListener('hashchange', router);
+    router();
+
+    // Small UX: buy / add to cart actions
+    document.getElementById('buyBtn').addEventListener('click', () => {
+      window.location.href = '22.html';
+    });
+    document.getElementById('addCartBtn').addEventListener('click', () => alert('أضيف المنتج إلى السلة (مثال).'));
+
+  </script>
+</body>
+</html>
